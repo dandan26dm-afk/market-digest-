@@ -1,13 +1,14 @@
 name: Market Digest
 
+# ההפעלה היומית מגיעה מ-cron-job.org בשעה מדויקת (GitHub schedule מתעכב לפעמים בשעות).
+# אפשר גם להריץ ידנית מלשונית Actions.
 on:
-  schedule:
-    # שעה אחרי פתיחת המסחר (10:30 בניו יורק). GitHub עובד לפי UTC:
-    - cron: "30 14 * * 1-5"   # שעון קיץ (EDT)
-    - cron: "30 15 * * 1-5"   # שעון חורף (EST)
-    # הסקריפט בודק איזה מהשניים מתאים היום ומדלג על השני
-  workflow_dispatch:           # הרצה ידנית מלשונית Actions
+  workflow_dispatch:
     inputs:
+      force:
+        description: "להריץ גם מחוץ לשעות (לבדיקה)"
+        type: boolean
+        default: false
       send:
         description: "לשלוח לדיסקורד?"
         type: boolean
@@ -40,9 +41,8 @@ jobs:
       - name: Build image & send to Discord
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          SCHEDULE: ${{ github.event.schedule }}
-          FORCE: ${{ github.event_name == 'workflow_dispatch' }}
-          NO_SEND: ${{ github.event_name == 'workflow_dispatch' && !inputs.send }}
+          FORCE: ${{ inputs.force }}
+          NO_SEND: ${{ !inputs.send }}
         run: python digest.py
 
       - name: Save image as artifact
