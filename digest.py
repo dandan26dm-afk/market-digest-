@@ -334,15 +334,18 @@ def build_tiles(mkt: dict[str, Quote]) -> list[dict]:
 
 
 def vix_alert(mkt: dict[str, Quote]) -> dict | None:
+    """הודעת VIX: שורה ראשונה = כותרת, השאר = שורות משנה."""
     vix = mkt.get("^VIX")
     if not vix:
         return None
-    v = f"{vix.price:.2f}"
-    if vix.price >= 30:
-        return {"level": "danger", "icon": "⚠", "text": Markup("רמת {} ב-{}: פחד גבוה בשוק").format(tk("VIX"), tk(v))}
-    if vix.price >= 20:
-        return {"level": "warn", "icon": "⚠", "text": Markup("רמת {} מעל 20 ({}): חוסר יציבות גבוה בשוק").format(tk("VIX"), tk(v))}
-    return {"level": "calm", "icon": "●", "text": Markup("רמת {} ב-{}: השוק רגוע יחסית").format(tk("VIX"), tk(v))}
+    if vix.price > 30:
+        return {"level": "danger", "title": "Vix > 30",
+                "lines": ["קנייה🛒🛒🛒", "קנייה גם כשמגעיל"]}
+    if vix.price > 20:
+        return {"level": "warn", "title": "Vix > 20 🛒",
+                "lines": ["סטטיסטיקה לטובתנו 🛒"]}
+    return {"level": "calm", "title": "",
+            "lines": [Markup("רמת {} ב-{}: השוק רגוע יחסית").format(tk("VIX"), tk(f"{vix.price:.2f}"))]}
 
 
 def stock_rows(quotes: list[Quote]) -> list[dict]:
