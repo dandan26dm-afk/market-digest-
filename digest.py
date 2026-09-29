@@ -382,6 +382,9 @@ def should_run(now: dt.datetime, schedule: str) -> bool:
     if now.weekday() >= 5:
         print("סוף שבוע — אין מסחר")
         return False
+    if now.hour > 12 or (now.hour == 12 and now.minute > 30):
+        print(f"מאוחר מדי ({now:%H:%M %Z}): הריצה התעכבה, לא שולח תמונה של אמצע היום בשעה לא נכונה")
+        return False
     if schedule:
         is_dst = bool(now.dst())
         summer_cron = schedule.strip().startswith("30 14")
